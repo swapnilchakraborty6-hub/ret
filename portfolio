@@ -1,0 +1,441 @@
+import 'package:flutter/material.dart';
+
+// --- CONFIGURATION CONSTANTS ---
+const Color primaryColor = Color(0xFF333333); // Dark text/main color
+const Color accentColor = Color(0xFFC7A195); // Light reddish-brown/tan
+const double desktopBreakpoint = 800.0;
+const double mobilePadding = 20.0;
+const double desktopPadding = 40.0;
+const double maxContentWidth = 850.0;
+
+void main() {
+  runApp(const PortfolioApp());
+}
+
+class PortfolioApp extends StatelessWidget {
+  const PortfolioApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Swapnil Chakraborty Portfolio',
+      debugShowCheckedModeBanner: false,
+      theme: ThemeData(
+        primarySwatch: Colors.brown,
+        fontFamily: 'Arial',
+        visualDensity: VisualDensity.adaptivePlatformDensity,
+        textTheme: const TextTheme(
+          // Use for Section Titles
+          titleLarge: TextStyle(
+            fontSize: 20,
+            fontWeight: FontWeight.bold,
+            letterSpacing: 2.0,
+            color: primaryColor,
+          ),
+          // Use for Body Text
+          bodyMedium: TextStyle(fontSize: 16, color: primaryColor),
+        ),
+      ),
+      home: const PortfolioScreen(),
+    );
+  }
+}
+
+class PortfolioScreen extends StatelessWidget {
+  const PortfolioScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    // Use LayoutBuilder for responsive design based on screen width
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        // Center the content and limit max width, then choose layout
+        return Center(
+          child: Container(
+            constraints: const BoxConstraints(maxWidth: maxContentWidth),
+            // The main card background
+            decoration: BoxDecoration(
+              color: Colors.white,
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.1),
+                  blurRadius: 10,
+                  offset: const Offset(0, 4),
+                ),
+              ],
+            ),
+            child: SingleChildScrollView(
+              padding: EdgeInsets.symmetric(
+                horizontal: constraints.maxWidth > desktopBreakpoint ? desktopPadding : mobilePadding,
+                vertical: desktopPadding,
+              ),
+              child: constraints.maxWidth > desktopBreakpoint
+                  ? const DesktopLayout()
+                  : const MobileLayout(),
+            ),
+          ),
+        );
+      },
+    );
+  }
+}
+
+// --- Responsive Layouts ---
+
+// Mobile Layout (Single Column)
+class MobileLayout extends StatelessWidget {
+  const MobileLayout({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return const Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // 1. Header (Stacked for mobile)
+        PortfolioHeader(isMobile: true),
+        SizedBox(height: 20),
+        ContactInfo(),
+        SizedBox(height: 20),
+        Divider(color: accentColor),
+        // 2. Summary
+        SectionTitle(title: "Summary"),
+        ProfileSummary(),
+        // 3. Experience (Stacked)
+        SectionTitle(title: "Experience"),
+        ExperienceSection(),
+        // 4. Interests
+        SectionTitle(title: "Interests"),
+        InterestsSection(),
+        // 5. Skills
+        SectionTitle(title: "Skills"),
+        SkillSection(),
+      ],
+    );
+  }
+}
+
+// Desktop Layout (Two Columns)
+class DesktopLayout extends StatelessWidget {
+  const DesktopLayout({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return const Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // 1. Header
+        PortfolioHeader(isMobile: false),
+        SizedBox(height: 20),
+        ContactInfo(),
+        Divider(color: accentColor),
+        // 2. Summary
+        SectionTitle(title: "Summary"),
+        ProfileSummary(),
+        // 3. Experience & Interests (Side by Side)
+        SectionTitle(title: "Details"),
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Left Column (Wider for Experience)
+            Expanded(flex: 2, child: ExperienceSection()),
+            SizedBox(width: 40),
+            // Right Column (Narrower for Interests)
+            Expanded(flex: 1, child: InterestsSection()),
+          ],
+        ),
+        // 4. Skills (Full Width)
+        SectionTitle(title: "Skills"),
+        SkillSection(),
+      ],
+    );
+  }
+}
+
+// --- Reusable Widgets (Components) ---
+
+class PortfolioHeader extends StatelessWidget {
+  final bool isMobile;
+  const PortfolioHeader({required this.isMobile, super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final photo = Container(
+      width: 120,
+      height: 120,
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        border: Border.all(color: accentColor, width: 4),
+        color: Colors.grey[300], // Placeholder color
+      ),
+      child: const Icon(Icons.person, size: 60, color: primaryColor), // Placeholder icon
+    );
+
+    final nameTitle = Column(
+      crossAxisAlignment: isMobile ? CrossAxisAlignment.center : CrossAxisAlignment.start,
+      children: [
+        const Text(
+          "SWAPNIL",
+          style: TextStyle(
+            fontSize: 32,
+            letterSpacing: 5.0,
+            fontWeight: FontWeight.w900,
+            height: 1.2,
+            color: primaryColor,
+          ),
+        ),
+        const Text(
+          "CHAKRABORTY",
+          style: TextStyle(
+            fontSize: 32,
+            letterSpacing: 5.0,
+            fontWeight: FontWeight.w900,
+            height: 1.2,
+            color: primaryColor,
+          ),
+        ),
+        const SizedBox(height: 5),
+        Text(
+          "WRITER, DIRECTOR",
+          style: TextStyle(
+            fontSize: 16,
+            color: accentColor,
+            letterSpacing: 2.0,
+            fontWeight: FontWeight.normal,
+          ),
+        ),
+      ],
+    );
+
+    if (isMobile) {
+      return Column(
+        children: [photo, const SizedBox(height: 15), nameTitle],
+      );
+    } else {
+      return Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [nameTitle, photo],
+      );
+    }
+  }
+}
+
+class ContactInfo extends StatelessWidget {
+  const ContactInfo({super.key});
+
+  Widget _buildContactItem(IconData icon, String text) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8.0),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, size: 18, color: accentColor),
+          const SizedBox(width: 8),
+          Text(text, style: const TextStyle(fontSize: 14)),
+        ],
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Wrap(
+      spacing: 20, // Horizontal space
+      runSpacing: 5, // Vertical space when wrapping
+      alignment: WrapAlignment.spaceAround,
+      children: [
+        _buildContactItem(Icons.phone, "+8801854632047"),
+        _buildContactItem(Icons.email, "swapnilchakraborty6@gmail.com"),
+        _buildContactItem(Icons.location_pin, "Chattagram, Bangladesh"),
+      ],
+    );
+  }
+}
+
+class SectionTitle extends StatelessWidget {
+  final String title;
+  const SectionTitle({required this.title, super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(top: 30.0, bottom: 10.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(title, style: Theme.of(context).textTheme.titleLarge),
+          const SizedBox(height: 5),
+          const Divider(height: 1, thickness: 1, color: primaryColor),
+        ],
+      ),
+    );
+  }
+}
+
+class ProfileSummary extends StatelessWidget {
+  const ProfileSummary({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return const Text(
+      "Swapnil Chakraborty is a Bangladeshi author, poet, and scriptwriter based in Chattagram. His work brings to life the subtle moods of everyday life experience through poetry, fiction, and dramatic script. His writing captures the quiet beauty of human emotion — love, loneliness, memory, and the spaces between them.",
+      style: TextStyle(fontSize: 15.0),
+    );
+  }
+}
+
+class ExperienceSection extends StatelessWidget {
+  const ExperienceSection({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text("Drama and Films", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+        const SizedBox(height: 5),
+        _buildListItem(context, "Kathgolaper Biye", "Scriptwriter & Assistant Director"),
+        _buildListItem(context, "Se Bose Eka", "Scriptwriter"),
+        const SizedBox(height: 20),
+        const Text("Selected Publications", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+        const SizedBox(height: 5),
+        _buildListItem(context, "Amar Pashe Thako Kichukkhon", "Poetry"),
+        _buildListItem(context, "Je Dupur Bahana Banay", "Poetry"),
+        _buildListItem(context, "Dirghotomo Snaner Kache", "Poetry"),
+        _buildListItem(context, "Antata Kichukkhon Bishonno Thakun", "Poetry"),
+      ],
+    );
+  }
+
+  Widget _buildListItem(BuildContext context, String title, String role) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 4.0),
+      child: Text.rich(
+        TextSpan(
+          children: [
+            TextSpan(text: '$title ', style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 15)),
+            TextSpan(text: '— $role.', style: Theme.of(context).textTheme.bodyMedium?.copyWith(fontSize: 15)),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class InterestsSection extends StatelessWidget {
+  const InterestsSection({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    const List<String> interests = [
+      'Publishing new poetry and short fiction (including bilingual editions)',
+      'Scriptwriting for television, web, or film projects',
+      'Collaboration in creative and directorial ventures',
+      'Literary and artistic partnerships',
+    ];
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text("Interests", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+        const SizedBox(height: 10),
+        ...interests.map((interest) => Padding(
+          padding: const EdgeInsets.only(bottom: 6.0),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text("• ", style: TextStyle(color: accentColor, fontSize: 18)),
+              Expanded(child: Text(interest, style: const TextStyle(fontSize: 15))),
+            ],
+          ),
+        )).toList(),
+      ],
+    );
+  }
+}
+
+class SkillSection extends StatelessWidget {
+  const SkillSection({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    const List<Map<String, dynamic>> skills = [
+      {'label': 'Scriptwriting', 'percent': 0.61},
+      {'label': 'Poetry', 'percent': 0.81},
+      {'label': 'Style Guidelines', 'percent': 0.93},
+      {'label': 'Content Development', 'percent': 0.70},
+      {'label': 'Team Management', 'percent': 0.85},
+    ];
+
+    // Use GridView for responsive wrapping of skill circles
+    return GridView.builder(
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(), // Important for SingleChildScrollView
+      gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
+        maxCrossAxisExtent: 150, // Max width of each skill item
+        childAspectRatio: 0.8, // Aspect ratio of the grid tile
+        crossAxisSpacing: 20,
+        mainAxisSpacing: 20,
+      ),
+      itemCount: skills.length,
+      itemBuilder: (context, index) {
+        return SkillCircle(
+          label: skills[index]['label'] as String,
+          percent: skills[index]['percent'] as double,
+        );
+      },
+    );
+  }
+}
+
+class SkillCircle extends StatelessWidget {
+  final String label;
+  final double percent;
+
+  const SkillCircle({required this.label, required this.percent, super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final int displayPercent = (percent * 100).round();
+    
+    // Using Stack to place the percentage text over the circular progress indicator
+    return Column(
+      children: [
+        SizedBox(
+          width: 80,
+          height: 80,
+          child: Stack(
+            alignment: Alignment.center,
+            children: [
+              // Circular Progress Indicator (Mimics the CSS ring)
+              SizedBox(
+                width: 80,
+                height: 80,
+                child: CircularProgressIndicator(
+                  value: percent,
+                  strokeWidth: 5,
+                  backgroundColor: accentColor.withOpacity(0.3),
+                  valueColor: const AlwaysStoppedAnimation<Color>(accentColor),
+                ),
+              ),
+              // Percentage Text
+              Text(
+                '$displayPercent%',
+                style: const TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 18,
+                  color: primaryColor,
+                ),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 8),
+        Text(
+          label,
+          textAlign: TextAlign.center,
+          style: const TextStyle(fontSize: 12),
+        ),
+      ],
+    );
+  }
+}
